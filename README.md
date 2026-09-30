@@ -254,8 +254,7 @@ factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
 
 ## 4. Lista de cosas que NO se pueden olvidar
 
-#### Antes de empezar
-
+### Antes de empezar
 
 - [ ] Mirar el **plazo** del requerimiento (suelen ser 10 días hábiles) y
   apuntarlo.
@@ -266,8 +265,7 @@ factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
 - [ ] Pedir el **extracto en PDF descargado** (no una foto ni un escaneo) que
   cubra **todas** las fechas de pago.
 
-#### Mientras trabajas
-
+### Mientras trabajas
 
 - [ ] **Cerrar el Excel** antes de usar las opciones del menú.
 - [ ] Las facturas **en papel se sellan a mano sobre el original** y se
@@ -285,8 +283,7 @@ factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
   relación, importes que no cuadran por céntimos…). Así no se olvida si
   preguntan.
 
-#### Al terminar
-
+### Al terminar
 
 - [ ] Guardar el **extracto completo** (sin tapar) por si lo piden.
 - [ ] Guardar una **copia de seguridad** de todo el expediente (ZIP).
@@ -428,6 +425,21 @@ python -m pytest                 # desde la carpeta raíz; deben salir todas "pa
 **Privacidad**: los expedientes tienen datos personales y no se publican. El
 `.gitignore` excluye `Expedientes/` (salvo la plantilla vacía) y cualquier
 PDF, hoja de cálculo o imagen, para que no se suban por error a GitHub.
+
+**Subir cambios a GitHub** (solo si has modificado el código o las guías),
+desde PowerShell en la carpeta raíz:
+
+```powershell
+git status                          # revisa: ningún archivo de un expediente real
+git add -A
+git commit -m "Qué has cambiado"
+git push                            # ya no pide contraseña: la sesión quedó guardada
+```
+
+⚠️ **Nunca uses `git add -f`**: se salta el `.gitignore` y podría subir
+facturas o extractos reales. Si algo real se sube por error, borrarlo después
+no basta, porque queda en el historial: habría que limpiar el historial o borrar
+el repositorio.
 
 ---
 

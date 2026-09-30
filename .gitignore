@@ -1,0 +1,41 @@
+# =====================================================================
+# PROTECCIÓN DE DATOS: los expedientes reales NUNCA se suben.
+# Tienen facturas, extractos bancarios y datos personales.
+# Solo se sube la plantilla vacía.
+# =====================================================================
+Expedientes/*
+!Expedientes/_PLANTILLA/
+
+# Por si acaso, ningún documento real en ninguna otra carpeta
+*.pdf
+*.PDF
+*.xlsx
+*.xls
+*.csv
+*.jpg
+*.jpeg
+*.png
+*.zip
+# ...salvo el checklist vacío de la plantilla
+!Expedientes/_PLANTILLA/Checklist.xlsx
+# (las copias que crea "Completar checklist" no)
+*(copia antes de completar).xlsx
+
+# Salidas del programa con ventana
+SELLADAS/
+*_selladas/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*

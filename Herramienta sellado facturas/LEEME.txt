@@ -1,0 +1,62 @@
+SELLADOR DE FACTURAS PDF — instrucciones rápidas
+==================================================
+
+Qué es
+------
+Un programa con ventana (no hace falta saber programar) que coge tus
+facturas en PDF y les añade el texto que exige la subvención ("ESTA FACTURA
+ESTA SUBVENCIONADA POR...") y, si quieres, la imagen del sello de tu
+asociación. No toca los PDF originales: crea copias selladas en otra carpeta.
+
+Sirve para cualquier ayuntamiento o convocatoria, porque el texto y la imagen
+los eliges tú.
+
+Importante: solo para facturas DIGITALES. Las facturas que tienes en PAPEL se
+sellan a mano sobre el original y luego se escanean en color.
+
+Instalación (una sola vez en cada ordenador)
+--------------------------------------------
+1. Si no tienes Python, descárgalo de https://www.python.org/downloads/
+   Al instalarlo en Windows, marca la casilla "Add python.exe to PATH". La
+   casilla "tcl/tk", que hace falta para la ventana, viene marcada por
+   defecto: no la desmarques.
+2. Lo más fácil: doble clic en INICIAR.bat (en la carpeta de arriba) y aceptar
+   cuando pregunte si instalar las librerías. O, en una terminal dentro de
+   la carpeta de arriba (la raíz del proyecto):
+
+       python -m pip install -r requirements.txt
+
+Cómo usarlo
+-----------
+1. Doble clic en "sellador_facturas.py" (o, desde la terminal y dentro de la
+   carpeta: python sellador_facturas.py).
+2. A la izquierda: "Añadir PDFs..." o "Añadir carpeta..." para cargar las
+   facturas.
+3. A la derecha: escribe el texto del sello tal como lo pide tu convocatoria.
+4. Posición: déjala en "Automática (buscar hueco libre)". El programa busca
+   en cada factura un sitio en blanco donde el sello no tape nada.
+5. Si quieres poner también el sello o logo de la asociación: en "Imagen del
+   sello / logo" pulsa "Elegir..." y selecciona la imagen (JPG o PNG). El
+   fondo blanco se vuelve transparente automáticamente. 26 mm de alto va bien.
+6. Si una factura necesita otro texto (por ejemplo su importe) u otra
+   posición: selecciónala en la lista, marca "Usar texto/posición propios
+   para este archivo" y cámbialo. Aparecerá con un "*".
+7. Elige la carpeta de salida. Si no eliges ninguna, se crea "SELLADAS"
+   junto a las facturas.
+8. Pulsa "Procesar todas". Si en el registro alguna aparece con "REVISAR",
+   es que no había un hueco totalmente libre: ábrela y compruébala.
+
+Revisa siempre las copias antes de enviarlas.
+
+Sobre el texto del sello
+------------------------
+El Ayuntamiento de Fuenlabrada pide literalmente:
+  "ESTA FACTURA ESTA SUBVENCIONADA POR EL AYUNTAMIENTO DE FUENLABRADA.
+   CONVOCATORIA 2024; IMPORTE………€"
+Es decir, el importe en euros de cada factura. La norma también pide indicar
+si se imputa total o parcialmente, así que es buena idea añadir el
+porcentaje. Por ejemplo:
+  "...CONVOCATORIA 2024; IMPORTE: 61,93 € (100%)"
+Como cada factura tiene un importe distinto, para lotes grandes lo más cómodo
+es un pequeño script que lea los importes de un Excel (ver README.md,
+"Uso desde Python").

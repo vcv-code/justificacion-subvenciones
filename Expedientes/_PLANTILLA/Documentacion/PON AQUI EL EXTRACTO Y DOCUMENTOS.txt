@@ -1,0 +1,5 @@
+Mete aqui:
+ - el extracto bancario en PDF DESCARGADO de la banca online (no escaneado),
+   que cubra todo el periodo de los pagos. Renombralo a "extracto bancario.pdf"
+   (o cambia el nombre en config.json);
+ - el anexo de justificantes que se entrego, el requerimiento, las bases...

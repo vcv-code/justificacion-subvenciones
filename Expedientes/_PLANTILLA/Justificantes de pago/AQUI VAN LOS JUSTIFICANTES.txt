@@ -1,0 +1,2 @@
+Aqui el programa deja el extracto con solo los pagos visibles.
+Pon aqui tambien los recibos de pagos en efectivo y otros comprobantes.

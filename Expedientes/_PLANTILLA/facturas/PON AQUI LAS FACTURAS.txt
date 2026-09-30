@@ -1,0 +1,4 @@
+Mete aqui TODAS las facturas en PDF (puedes organizarlas en subcarpetas).
+Las facturas en papel: escanealas en color a PDF y ponlas tambien aqui.
+No hace falta renombrarlas.
+Puedes borrar este archivo.

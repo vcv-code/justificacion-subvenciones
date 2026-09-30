@@ -1,0 +1,13 @@
+{
+  "descripcion": "Nombre de la asociación - Subvención 20XX - Ayuntamiento de ...",
+  "checklist": "Checklist.xlsx",
+  "facturas_originales": "facturas",
+  "facturas_selladas": "facturas SELLADAS",
+  "sello": "sello.jpg",
+  "sello_alto_mm": 26,
+  "texto_sello": "ESTA FACTURA ESTA SUBVENCIONADA POR EL AYUNTAMIENTO DE ....... CONVOCATORIA 20XX; IMPORTE: {importe} € ({porcentaje})",
+  "extracto": "Documentacion/extracto bancario.pdf",
+  "extracto_salida": "Justificantes de pago/Extracto bancario - pagos justificados.pdf",
+  "nota_extracto": "Se muestran solo los movimientos que pagan las facturas justificadas. El resto se ha ocultado por protección de datos. En el margen: nº de justificante.",
+  "ajustes_posicion": {}
+}

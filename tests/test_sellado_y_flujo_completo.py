@@ -89,3 +89,34 @@ def test_flujo_completo_de_un_expediente(expediente_prueba):
         assert visible in t
     for oculto in ("MARIA DONANTE", "SOCIA EJEMPLO", "TIENDA PERSONAL", "40,00"):
         assert oculto not in t
+
+    # 4) entrega: un solo PDF con índice, facturas y justificantes, con marcadores
+    ejecutar("preparar_entrega.py", exp)
+    entrega = pymupdf.open(exp / "ENTREGA" / "Documentacion justificativa.pdf")
+    toc = [t[1] for t in entrega.get_toc()]
+    assert toc[0] == "ÍNDICE" and "JUSTIFICANTES DE PAGO" in toc
+    assert any(t.startswith("Nº 1 - Zooplus SE") for t in toc)
+    assert "84,81 €" in entrega[0].get_text()
+
+
+def test_completar_avisa_de_errores_en_el_excel_sin_romperse(expediente_prueba):
+    """Importe con letras, fecha imposible y un pago que no está en el banco:
+    el programa avisa (no se para) y el pago no localizado sigue en rojo al repetir."""
+    exp = expediente_prueba
+    wb = openpyxl.load_workbook(exp / "Checklist.xlsx")
+    ws = wb.worksheets[0]
+    for r, fila in enumerate([["6", None, "Proveedor X", "X-1", "abc", None, "Tarjeta", "01/03/2025"],
+                              ["7", None, "Proveedor Y", "Y-1", "999,99", None, "Tarjeta", "31/02/2025"],
+                              ["8", None, "Proveedor Z", "Z-1", "777,77", None, "Tarjeta", "02/03/2025"]], 7):
+        for c, v in enumerate(fila, 1):
+            ws.cell(r, c).value = v
+    wb.save(exp / "Checklist.xlsx")
+
+    salida = ejecutar("completar_checklist.py", exp)
+    assert "Nº 6: el importe 'abc' no se entiende" in salida
+    assert "Nº 7: la fecha de pago '31/02/2025' no es válida" in salida
+    ejecutar("completar_checklist.py", exp)  # segunda vez: no debe perder el rojo
+    ws = openpyxl.load_workbook(exp / "Checklist.xlsx").worksheets[0]
+    celda_pago = ws.cell(9, 15)  # fila del nº 8, columna "Pago localizado"
+    assert str(celda_pago.value).startswith("NO LOCALIZADO")
+    assert celda_pago.fill.fgColor.rgb.endswith("F8CBAD")

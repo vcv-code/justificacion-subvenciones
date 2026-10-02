@@ -51,6 +51,9 @@ def crear_expediente():
     nombre = preguntar("Nombre: ").strip()
     if not nombre:
         return None
+    if any(ch in nombre for ch in '\\/:*?"<>|'):
+        print('El nombre no puede llevar ninguno de estos caracteres: \\ / : * ? " < > |')
+        return None
     destino = os.path.join(EXPEDIENTES, nombre)
     if os.path.exists(destino):
         print("Ya existe un expediente con ese nombre.")
@@ -90,13 +93,17 @@ def menu_expediente(nombre):
         print("  1. Completar checklist (buscar archivos, tipo, texto del sello y pagos)")
         print("  2. Sellar las facturas digitales")
         print("  3. Preparar el extracto bancario (solo los pagos, con nº de justificante)")
-        print("  4. Abrir la carpeta del expediente")
-        print("  5. Abrir el checklist (Excel)")
+        print("  4. Preparar la entrega: un solo PDF con índice, facturas y justificantes")
+        print("  5. Abrir la carpeta del expediente")
+        print("  6. Abrir el checklist (Excel)")
         print("  0. Volver")
         op = preguntar("Elige una opción: ").strip()
         if op == "1":
             print("\nRecuerda: el Excel del checklist tiene que estar CERRADO.")
-            rehacer = preguntar("¿Recalcular también lo que ya estaba relleno? (s/N): ").strip().lower() == "s"
+            print("Normalmente solo se rellena lo que esté vacío. Si cambiaste importes o fechas, puedes")
+            print("RECALCULAR: se sobrescriben las columnas grises (tipo, texto, copia, pagos), también")
+            print("lo que hubieras corregido a mano en ellas. Antes se guarda una copia del checklist.")
+            rehacer = preguntar("¿Recalcular? (s/N): ").strip().lower() == "s"
             ejecutar("completar_checklist.py", carpeta, *(["--rehacer"] if rehacer else []))
         elif op == "2":
             ejecutar("sellar_facturas_lote.py", carpeta)
@@ -104,13 +111,17 @@ def menu_expediente(nombre):
         elif op == "3":
             ejecutar("preparar_extracto_pagos.py", carpeta)
         elif op == "4":
-            abrir(carpeta)
+            ejecutar("preparar_entrega.py", carpeta)
         elif op == "5":
+            abrir(carpeta)
+        elif op == "6":
             sys.path.insert(0, AQUI)
             import expediente
             abrir(expediente.cargar(carpeta)["checklist"])
         elif op == "0":
             return
+        else:
+            print("Opción no válida.")
 
 
 def main():

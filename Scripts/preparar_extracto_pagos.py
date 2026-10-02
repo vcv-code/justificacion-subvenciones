@@ -65,6 +65,10 @@ def main():
     cfg = expediente.cargar(sys.argv[1])
     nota = cfg.get("nota_extracto") or NOTA_POR_DEFECTO
     salida = cfg["extracto_salida"]
+    if not cfg.get("extracto") or not os.path.isfile(cfg["extracto"]):
+        sys.exit(f"No encuentro el extracto bancario: {cfg.get('extracto')}\n"
+                 "Comprueba que está en la carpeta del expediente y que su nombre coincide con "
+                 "\"extracto\" en config.json.")
     mostrar = pagos_a_mostrar(cfg["checklist"])
     if not mostrar:
         sys.exit("El checklist no tiene pagos localizados. Ejecuta antes 'completar_checklist.py'.")

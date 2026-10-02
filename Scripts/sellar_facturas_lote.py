@@ -30,11 +30,17 @@ POR_HOJA = 12  # miniaturas por hoja de revisión (4 x 3)
 
 
 def euros(v):
+    if v is None:
+        return "?"
     return f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 def primer_num(k):
-    return int(str(k).split(",")[0])
+    """Primer nº de justificante ("38, 48" -> 38). Si no es un número, va al final."""
+    try:
+        return int(str(k).split(",")[0])
+    except ValueError:
+        return 10 ** 6
 
 
 def leer_lote(checklist):
@@ -49,7 +55,11 @@ def leer_lote(checklist):
                 print(f"AVISO: a la fila Nº {f[c['num']]} le falta texto, archivo o copia. "
                       "Ejecuta antes 'completar_checklist.py'.")
                 continue
-            lote.append((str(f[c["num"]]), f[c["proveedor"]], expediente.a_numero(f[c["importe"]]),
+            try:
+                importe = expediente.a_numero(f[c["importe"]])
+            except ValueError:
+                importe = None  # solo se usa para la etiqueta de la hoja de revisión
+            lote.append((str(f[c["num"]]), f[c["proveedor"]], importe,
                          f[c["texto"]], f[c["archivo"]], f[c["copia"]]))
     return lote
 
@@ -84,7 +94,10 @@ def main():
     if len(sys.argv) not in (2, 4):
         sys.exit(__doc__)
     cfg = expediente.cargar(sys.argv[1])
-    desde, hasta = (int(sys.argv[2]), int(sys.argv[3])) if len(sys.argv) == 4 else (0, 10 ** 6)
+    try:
+        desde, hasta = (int(sys.argv[2]), int(sys.argv[3])) if len(sys.argv) == 4 else (0, 10 ** 6)
+    except ValueError:
+        sys.exit("El rango tiene que ser dos números, por ejemplo:  36 48")
     salida = cfg["facturas_selladas"]
     revision = os.path.join(salida, "_revision")
     os.makedirs(revision, exist_ok=True)
@@ -99,8 +112,14 @@ def main():
     for num, prov, importe, texto, archivo, nombre in leer_lote(cfg["checklist"]):
         if not desde <= primer_num(num) <= hasta:
             continue
-        opc = replace(base_opc, texto=texto, **ajustes.get(num, {}))
         destino = os.path.join(salida, nombre)
+        try:
+            opc = replace(base_opc, texto=texto, **ajustes.get(num, {}))
+        except TypeError:
+            print(f"ERROR {nombre}: en config.json, 'ajustes_posicion' del nº {num} tiene un nombre que no "
+                  "existe. Valen: posicion, x_manual_mm, y_manual_mm.")
+            revisar.append(nombre)
+            continue
         try:
             avisos = sf.sellar_pdf(os.path.join(cfg["facturas_originales"], archivo), destino, opc)
         except Exception as e:

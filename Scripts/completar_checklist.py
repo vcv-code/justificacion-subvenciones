@@ -79,18 +79,18 @@ def a_fechas(v):
 def analizar_pdf(ruta):
     """(tipo, texto) de un PDF. ESCANEADA si alguna página es básicamente una
     imagen a página completa sin texto real (o con OCR encima)."""
-    doc = pymupdf.open(ruta)
-    texto = " ".join(p.get_text() for p in doc)
-    escaneada = False
-    for p in doc:
-        area = p.rect.width * p.rect.height
-        cobertura = 0
-        for img in p.get_images(full=True):
-            for r in p.get_image_rects(img[0]):
-                cobertura = max(cobertura, (r & p.rect).get_area() / area)
-        productor = (doc.metadata.get("producer", "") + doc.metadata.get("creator", "")).lower()
-        if cobertura > 0.85 and (len(p.get_text().strip()) < 50 or "scan" in productor):
-            escaneada = True
+    with pymupdf.open(ruta) as doc:
+        texto = " ".join(p.get_text() for p in doc)
+        productor = ((doc.metadata or {}).get("producer", "") + (doc.metadata or {}).get("creator", "")).lower()
+        escaneada = False
+        for p in doc:
+            area = p.rect.width * p.rect.height
+            cobertura = 0
+            for img in p.get_images(full=True):
+                for r in p.get_image_rects(img[0]):
+                    cobertura = max(cobertura, (r & p.rect).get_area() / area)
+            if cobertura > 0.85 and (len(p.get_text().strip()) < 50 or "scan" in productor):
+                escaneada = True
     return ("ESCANEADA (papel)" if escaneada else "DIGITAL"), texto
 
 
@@ -221,7 +221,12 @@ def main():
     pendientes_pago, lineas_de_fila = [], {}
     for f in filas:
         num = str(celda(f, "num").value).strip()
-        importe = expediente.a_numero(celda(f, "importe").value)
+        try:
+            importe = expediente.a_numero(celda(f, "importe").value)
+        except ValueError:
+            problemas.append(f"Nº {num}: el importe '{celda(f, 'importe').value}' no se entiende "
+                             "(escríbelo como 61,93).")
+            continue
         if importe is None:
             problemas.append(f"Nº {num}: falta el importe.")
             continue
@@ -266,14 +271,25 @@ def main():
                                            else "Sellar con el programa")
         for cl in ws[f]:
             cl.fill = AMARILLO if escaneada else SIN_RELLENO
+        if str(celda(f, "pago").value or "").startswith("NO LOC"):
+            celda(f, "pago").fill = ROJO
 
         # pagos pendientes de buscar
         if vacia(f, "pago"):
             forma = str(celda(f, "forma_pago").value or "") if c["forma_pago"] is not None else ""
-            fechas = a_fechas(celda(f, "fecha_pago").value) if c["fecha_pago"] is not None else []
+            try:
+                fechas = a_fechas(celda(f, "fecha_pago").value) if c["fecha_pago"] is not None else []
+            except ValueError:
+                problemas.append(f"Nº {num}: la fecha de pago '{celda(f, 'fecha_pago').value}' no es válida.")
+                fechas = []
             importes = []
             if c["importes_pagos"] is not None and celda(f, "importes_pagos").value:
-                importes = [expediente.a_numero(x) for x in re.split(r";|\s/\s", str(celda(f, "importes_pagos").value))]
+                try:
+                    importes = [expediente.a_numero(x)
+                                for x in re.split(r";|\s/\s", str(celda(f, "importes_pagos").value))]
+                except ValueError:
+                    problemas.append(f"Nº {num}: no entiendo 'Importe de cada pago' (escríbelo como 347,00; 436,80).")
+                    importes = []
             if not importes:
                 importes = [importe]
             if "efectivo" in forma.lower():

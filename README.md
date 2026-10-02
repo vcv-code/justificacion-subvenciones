@@ -49,7 +49,8 @@ Cada **expediente** (por ejemplo `ALGP 2025 - Fuenlabrada`) tiene siempre lo mis
 | `facturas/` | Todas las facturas en PDF, **tal como las tienes**. Nunca se modifican. |
 | `facturas SELLADAS/` | Aquí salen las copias selladas. Dentro, `_revision/` tiene hojas con miniaturas para revisarlas rápido. |
 | `Documentacion/` | El extracto bancario (PDF) y los papeles del ayuntamiento. |
-| `Justificantes de pago/` | Aquí sale el extracto "limpio" y van los recibos de pagos en efectivo. |
+| `Justificantes de pago/` | Aquí sale el extracto "limpio" y van los recibos de pagos en efectivo, tickets y comprobantes de transferencia. |
+| `ENTREGA/` | Aquí sale el PDF único para presentar: índice + facturas selladas + justificantes. |
 | `Checklist.xlsx` | La lista de facturas: la rellenas tú en parte y el programa completa el resto. |
 | `config.json` | Los ajustes del expediente: texto del sello, nombres de archivos, etc. |
 | `sello.jpg` | La imagen del sello de la asociación (la pones tú). |
@@ -234,21 +235,51 @@ si el ayuntamiento pide el completo.
 
 ### Paso 11 — Pagos en efectivo
 
-Los pagos en efectivo no salen en el banco. Para cada uno, pide al proveedor
-un **recibo firmado** ("recibí de la Asociación X la cantidad de… por la
-factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
+Los pagos en efectivo no salen en el banco. Para cada uno, tienes dos opciones:
 
-### Paso 12 — Revisa y entrega
+- **La más rápida:** lleva la factura (ya sellada) al proveedor y pide que
+  escriba **"PAGADO"** o "ABONADO" y ponga su **sello** (mejor también fecha
+  y firma). Escanéala de nuevo y sustituye la de `facturas SELLADAS/`, con el
+  mismo nombre.
+- O pide un **recibo firmado** aparte ("recibí de la Asociación X la cantidad
+  de… por la factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
+
+**Si la factura pone una forma de pago equivocada** (por ejemplo "Efectivo"
+cuando se pagó con tarjeta), no pasa nada: el cargo en el extracto lo
+demuestra. Si tienes el ticket de la tarjeta, guárdalo también en
+`Justificantes de pago/` y apúntalo en las Notas del checklist.
+
+### Paso 12 — Junta todo en un solo PDF (menú, opción 4)
+
+Crea en la carpeta `ENTREGA/` del expediente **un único PDF**
+(`Documentacion justificativa.pdf`) con:
+
+1. una página de **índice**: cada factura con su nº, proveedor, importe y
+   página;
+2. **todas las facturas selladas**, en orden;
+3. los **justificantes de pago**: el extracto limpio y todos los PDF de
+   `Justificantes de pago/` (recibos de efectivo, tickets, transferencias…).
+
+Lleva **marcadores** (el panel lateral del lector de PDF) para ir directo a
+cada factura, y se **comprime** para que pese poco. Por ejemplo, 64 facturas
+quedan en unos 4 MB. Si aun así pasa del límite (10 MB, o lo que pongas en
+`"limite_mb_entrega"` del `config.json`), lo parte en varios archivos.
+
+Antes de ejecutarlo, asegúrate de que están **todas** las facturas
+selladas, también las de papel ya escaneadas, y **todos** los recibos.
+
+### Paso 13 — Revisa y entrega
 
 - Repasa el checklist fila a fila y marca las columnas verdes (**¿Sellada?**,
   **¿Pago acreditado?**).
-- Lo que se entrega normalmente:
-  1. todas las facturas selladas de `facturas SELLADAS/` (sin la carpeta
-     `_revision`);
-  2. el extracto limpio de `Justificantes de pago/` y los recibos de
-     efectivo.
+- Abre el PDF de `ENTREGA/` y repásalo: el índice, los marcadores y que los
+  escaneos se lean bien.
+- Lo que se presenta en la sede electrónica:
+  1. **el escrito** que acompaña la entrega, en PDF y firmado, como
+     documento principal;
+  2. **el PDF de `ENTREGA/`**: facturas selladas y justificantes de pago.
 - Guarda una copia de todo el expediente (por ejemplo, comprimido en ZIP)
-  cuando lo envíes.
+  cuando lo envíes, y el **justificante de registro** que da la sede.
 
 ---
 
@@ -279,12 +310,18 @@ factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
   proveedor.
 - [ ] Revisar las **miniaturas** (`_revision`) y el **extracto limpio** antes
   de enviarlos.
+- [ ] Al escanear facturas de papel, comprobar que **no sale nada cortado**
+  (nº de factura, fecha, importes) y que el **texto del sello lleva su
+  importe**.
 - [ ] Apuntar en la columna **Notas** cualquier cosa rara (erratas en la
   relación, importes que no cuadran por céntimos…). Así no se olvida si
   preguntan.
 
 ### Al terminar
 
+- [ ] Presentar en la sede **el escrito** (PDF firmado) y **el PDF de
+  `ENTREGA/`**, y guardar el **justificante de registro** que da la sede
+  (en `Documentacion/`).
 - [ ] Guardar el **extracto completo** (sin tapar) por si lo piden.
 - [ ] Guardar una **copia de seguridad** de todo el expediente (ZIP).
 - [ ] **No subir nunca** facturas, extractos ni checklists a internet (GitHub,
@@ -304,6 +341,9 @@ factura nº…") y guárdalo escaneado en `Justificantes de pago/`.
 | "No reconozco movimientos en el extracto" | El extracto es un escaneo o una foto, no el PDF descargado. Descárgalo de la banca online. Si aun así no funciona, el formato de ese banco es muy raro: ver el [apartado 7](#7-para-quien-quiera-saber-más-uso-avanzado). |
 | Muchos pagos "NO LOCALIZADO" | Comprueba que el extracto cubre esas fechas y que las fechas de pago del checklist son correctas. El programa busca hasta 10 días antes o después. |
 | En el extracto limpio se ve algo que no debería | **No lo envíes.** Puede pasar si el banco pone movimientos en un formato raro. Tapa esa parte con otro programa o avisa a quien mantenga esto. |
+| "No puedo sustituir 'Documentacion justificativa.pdf'" | Tienes ese PDF abierto: ciérralo y repite la opción 4. |
+| El PDF de entrega pesa demasiado para la sede | Pon en `config.json` un límite menor, por ejemplo `"limite_mb_entrega": 5,` (con la coma), y repite la opción 4: lo partirá en varios archivos. |
+| "el importe … no se entiende" o "la fecha de pago … no es válida" | Corrige esa fila del checklist (importes como `61,93`; fechas como `14/06/2024`) y repite la opción 1. |
 | Una factura sale con "ERROR" al sellar | Puede ser un PDF dañado o protegido con contraseña. Ábrela, "Imprimir → Microsoft Print to PDF" para hacer una copia limpia, usa esa copia y repite. |
 | Una factura digital salió como ESCANEADA (o al revés) | Corrige a mano la columna **Tipo** en el Excel (`DIGITAL` o `ESCANEADA (papel)`) y repite la opción 1 con "recalcular" = `n`. |
 
@@ -367,6 +407,7 @@ columnas existentes: el programa las encuentra por su título.
 python Scripts\completar_checklist.py "ALGP 2025 - Fuenlabrada" [--rehacer]
 python Scripts\sellar_facturas_lote.py "ALGP 2025 - Fuenlabrada" [desde hasta]
 python Scripts\preparar_extracto_pagos.py "ALGP 2025 - Fuenlabrada"
+python Scripts\preparar_entrega.py "ALGP 2025 - Fuenlabrada"
 ```
 
 **Qué hace cada script** (`Scripts/`):
@@ -377,6 +418,7 @@ python Scripts\preparar_extracto_pagos.py "ALGP 2025 - Fuenlabrada"
 | `completar_checklist.py` | Rellena las columnas grises del checklist. |
 | `sellar_facturas_lote.py` | Sella las facturas DIGITALES con el texto de su fila. |
 | `preparar_extracto_pagos.py` | Genera el extracto limpio. |
+| `preparar_entrega.py` | Junta índice, facturas y justificantes en un solo PDF comprimido, con marcadores. |
 | `banco.py` | Lee los movimientos de un extracto en PDF (cualquier banco, en principio). |
 | `expediente.py` | Lee el `config.json` y localiza las columnas del checklist. |
 
@@ -410,6 +452,7 @@ texto y la imagen, y si no cabe prueba con la imagen encima o más pequeña.
 | `extracto`, `extracto_salida` | Extracto original y dónde guardar el limpio. |
 | `nota_extracto` | Frase que se escribe arriba del extracto limpio. |
 | `ajustes_posicion` | Posición del sello forzada para facturas concretas. |
+| `limite_mb_entrega` | (Opcional) Tamaño máximo en MB del PDF de entrega; si lo supera, se parte en varios. Por defecto 10. |
 
 **Pruebas automáticas** (`tests/`): comprueban con datos **inventados**
 (facturas y extractos de mentira que se crean al momento) la lectura de
